@@ -1,25 +1,27 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { FaSearch, FaShoppingCart, FaBell } from "react-icons/fa";
 import { HiOutlineFilter } from "react-icons/hi";
 import { MdDashboard, MdWork, MdInput, MdPerson } from "react-icons/md";
 import FirstImage from "../src/assets/images/first_img.png";
 
-const projects = [
-  {
-    id: 1,
-    image: FirstImage,
-    title: "Kemampuan Merangkum Tulisan",
-    language: "BAHASA SUNDA",
-    author: "Oleh Al-Baiqi Samaan",
-  },
-  {
-    id: 2,
-    image: FirstImage,
-    title: "Kemampuan Merangkum Tulisan",
-    language: "BAHASA SUNDA",
-    author: "Oleh Al-Baiqi Samaan",
-  },
-];
+const API_URL = "http://localhost:1337/api/product-details"; // Replace with your actual API URL
+
+// const projects = [
+//   {
+//     id: 1,
+//     image: FirstImage,
+//     title: "Kemampuan Merangkum Tulisan",
+//     language: "BAHASA SUNDA",
+//     author: "Oleh Al-Baiqi Samaan",
+//   },
+//   {
+//     id: 2,
+//     image: FirstImage,
+//     title: "Kemampuan Merangkum Tulisan",
+//     language: "BAHASA SUNDA",
+//     author: "Oleh Al-Baiqi Samaan",
+//   },
+// ];
 
 const Sidebar = () => (
   <div className="hidden md:flex flex-col w-64 bg-orange-600 text-white h-screen p-4">
@@ -43,6 +45,29 @@ const Sidebar = () => (
 
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState("Project");
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects");
+        }
+        const data = await response.json();
+        console.log('data',data.data)
+        setProjects(data.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   return (
     <div className="flex h-screen">
@@ -81,11 +106,11 @@ const Portfolio = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {projects.map((project) => (
                   <div key={project.id} className="bg-white p-4 shadow rounded flex w-full">
-                    <img src={project.image} alt="project" className="w-24 h-24 object-cover rounded" />
+                    <img src={project.attributes.img} alt="project" className="w-24 h-24 object-cover rounded" />
                     <div className="ml-4">
-                      <h3 className="font-bold">{project.title}</h3>
-                      <p className="text-sm text-gray-500">{project.language}</p>
-                      <p className="text-xs text-gray-400">{project.author}</p>
+                      <h3 className="text-gray-500 font-bold">{project.attributes.name}</h3>
+                      <p className="text-sm text-gray-500">{project.attributes.name}</p>
+                      <p className="text-xs text-gray-400">{project.attributes.desc}</p>
                       <button className="bg-orange-500 text-white mt-2 px-4 py-1 rounded">Add to Cart</button>
                     </div>
                   </div>
